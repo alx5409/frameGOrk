@@ -1,0 +1,5 @@
+# Visual Studio Code dotfiles
+.vscode
+
+# Binaries after compilation
+bin
