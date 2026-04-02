@@ -1,7 +1,6 @@
 package route
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 )
@@ -18,7 +17,7 @@ const (
 )
 
 // For now uses the standard library
-type HandlerFunc func(http.Request)
+type HandlerFunc func(http.ResponseWriter, *http.Request) error
 
 type Route struct {
 	Path    Path
@@ -45,15 +44,13 @@ func validateHandler(handler HandlerFunc) bool {
 
 func validateRoute(method Method, path Path, handler HandlerFunc) error {
 	if !method.isValid() {
-		errMessage := fmt.Errorf("invalid HTTP method: %s", method)
-		return errors.New(errMessage.Error())
+		return fmt.Errorf("invalid HTTP method: %s", method)
 	}
 	if !path.isValid() {
-		errMessage := fmt.Errorf("invalid path: %s", path)
-		return errors.New(errMessage.Error())
+		return fmt.Errorf("invalid path: %s", path)
 	}
 	if !validateHandler(handler) {
-		return errors.New("handler function cannot be nil")
+		return fmt.Errorf("handler function cannot be nil")
 	}
 	return nil
 }
