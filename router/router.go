@@ -23,3 +23,12 @@ func (r *Router) Register(method route.Method, path route.Path, handler route.Ha
 func (r *Router) GetRoutes() []*route.Route {
 	return r.routes
 }
+
+func HTTPDispatch(method route.Method, path route.Path, routes []*route.Route) (route.HandlerFunc, bool) {
+	for _, r := range routes {
+		if r.Method == method && r.Path == path {
+			return r.Handler, true
+		}
+	}
+	return nil, false
+}
