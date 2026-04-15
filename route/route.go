@@ -5,10 +5,13 @@ import (
 	"net/http"
 )
 
+// HTTP method used for router matching.
 type Method string
+
+// URL path pattern for a route.
 type Path string
 
-// Handles the basic CRUD operations for a RESTful API
+// Handles the basic CRUD operations for a RESTful API.
 const (
 	POST   Method = "POST"   // Create
 	GET    Method = "GET"    // Read
@@ -16,15 +19,18 @@ const (
 	DELETE Method = "DELETE" // Delete
 )
 
-// For now uses the standard library
+// Defines the handler signature of a handler function.
+// For now uses the standard library.
 type HandlerFunc func(http.ResponseWriter, *http.Request) error
 
+// Defines a single registered endpoint with its method, path and handler function.
 type Route struct {
 	Path    Path
 	Method  Method
 	Handler HandlerFunc
 }
 
+// checks if the method is a valid method.
 func (m Method) isValid() bool {
 	switch m {
 	case POST, GET, PATCH, DELETE:
@@ -34,14 +40,17 @@ func (m Method) isValid() bool {
 	}
 }
 
+// checks if the path is a valid path.
 func (p Path) isValid() bool {
 	return len(p) > 0 && p[0] == '/'
 }
 
+// checks if the handler is a valid handler function.
 func validateHandler(handler HandlerFunc) bool {
 	return handler != nil
 }
 
+// validates method, path and handler function before creating a route.
 func validateRoute(method Method, path Path, handler HandlerFunc) error {
 	if !method.isValid() {
 		return fmt.Errorf("invalid HTTP method: %s", method)
@@ -55,6 +64,7 @@ func validateRoute(method Method, path Path, handler HandlerFunc) error {
 	return nil
 }
 
+// Creates and validates a Route instance.
 func New(method Method, path Path, handler HandlerFunc) (*Route, error) {
 	if err := validateRoute(method, path, handler); err != nil {
 		return nil, err
