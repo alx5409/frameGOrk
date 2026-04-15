@@ -7,7 +7,7 @@ import (
 
 // Compile the special characters on the module level for better performance, so that when is called again it does not
 // compile again
-var specialCharRE = regexp.MustCompile(`[^a-zA-Z0-9/_-.]`)
+var specialCharRE = regexp.MustCompile(`[^a-zA-Z0-9/_\-.]`)
 
 // Detects whether the character is a special character
 func specialCharacters(r rune) bool {
@@ -16,8 +16,8 @@ func specialCharacters(r rune) bool {
 
 // Normalizes the input method by removing spaces and special characters and converting to upper case
 func NormalizeMethod(input string) string {
-	ouput := strings.TrimFunc(input, specialCharacters) // Removes special characters
-	return strings.ToUpper(ouput)
+	output := strings.TrimFunc(input, specialCharacters) // Removes special characters
+	return strings.ToUpper(output)
 }
 
 // Normalizes the path by removing the special characters

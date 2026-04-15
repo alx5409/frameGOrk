@@ -2,28 +2,45 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
+	"github.com/alx5409/frameGOrk/app"
 	"github.com/alx5409/frameGOrk/route"
 	"github.com/alx5409/frameGOrk/router"
 )
 
 func main() {
-	router := &router.Router{}
+	appAddress := ":8000"
+	mockEndpoint := "/hello"
+	handlerFunction := route.HandlerFunc(
+		func(w http.ResponseWriter, req *http.Request) error {
+			fmt.Fprintln(w, "Hello, this is a demo")
+			return nil
+		})
+
+	// Creates the app
+	app := app.NewApp(appAddress)
+
+	// Create the router
+	r := &router.Router{}
+
+	// Register routes
 	methods := []route.Method{route.GET, route.POST, route.PATCH, route.DELETE}
-	hFunc := route.HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
-		fmt.Fprintln(w, "Hello, World!")
-		return nil
-	})
 
 	for _, method := range methods {
-		if err := router.Register(method, "/hello", hFunc); err != nil {
-			fmt.Printf("Error registering route: %v\n", err)
+		err := r.Register(method, route.Path(mockEndpoint), handlerFunction)
+		if err != nil {
+			log.Printf("Error registering route: %v\n", err)
 		}
 	}
 
-	routes := router.GetRoutes()
-	for _, r := range routes {
-		fmt.Printf("Registered route: %s %s\n", r.Method, r.Path)
+	var URL = "http://" + "localhost" + appAddress + mockEndpoint
+	fmt.Println("Server is running on ", URL)
+
+	// Start the server using the router
+	err := app.Start(r)
+	if err != nil {
+		log.Fatalf("Server error: %v\n", err)
 	}
 }
