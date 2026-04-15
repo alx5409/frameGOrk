@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-var defaultPort = "8000"
+const defaultPort = "8000"
 
 // Contains the metadata and runtime configuration for the framework app.
 type App struct {
@@ -25,7 +25,7 @@ func (a *App) initLogger() {
 }
 
 // validates the following app fields: name, version
-func (a *App) validate() error {
+func (a *App) validateFields() error {
 	if a.Name == "" {
 		return fmt.Errorf("app name cannot be empty")
 	}
@@ -35,11 +35,15 @@ func (a *App) validate() error {
 	return nil
 }
 
-// Starts boots an HTTP server using the provided handler.
+// Boots an HTTP server using the provided handler.
 // It returns an error if the server fails to start or stops unexpectedly.
 func (a *App) Start(handler http.Handler) error {
 	if handler == nil {
 		return fmt.Errorf("handler cannot be nil")
+	}
+	err := a.validateFields()
+	if err != nil {
+		return err
 	}
 
 	if a.Addr == "" {
