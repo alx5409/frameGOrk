@@ -11,10 +11,8 @@ import (
 )
 
 func main() {
-	appName := "frameGOrk"
-	appVersion := "0.0.1"
 	appAddress := ":8000"
-	mockPath := "/hello"
+	mockEndpoint := "/hello"
 	handlerFunction := route.HandlerFunc(
 		func(w http.ResponseWriter, req *http.Request) error {
 			fmt.Fprintln(w, "Hello, this is a demo")
@@ -22,7 +20,7 @@ func main() {
 		})
 
 	// Creates the app
-	app := app.NewApp(appName, appVersion, appAddress)
+	app := app.NewApp(appAddress)
 
 	// Create the router
 	r := &router.Router{}
@@ -31,13 +29,13 @@ func main() {
 	methods := []route.Method{route.GET, route.POST, route.PATCH, route.DELETE}
 
 	for _, method := range methods {
-		err := r.Register(method, route.Path(mockPath), handlerFunction)
+		err := r.Register(method, route.Path(mockEndpoint), handlerFunction)
 		if err != nil {
 			log.Printf("Error registering route: %v\n", err)
 		}
 	}
 
-	var URL = "localhost" + appAddress + mockPath
+	var URL = "http://" + "localhost" + appAddress + mockEndpoint
 	fmt.Println("Server is running on ", URL)
 
 	// Start the server using the router

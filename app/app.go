@@ -5,9 +5,11 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"runtime/debug"
 )
 
 const defaultPort = "8000"
+const defaultName = "frameGOrk"
 
 // Contains the metadata and runtime configuration for the framework app.
 type App struct {
@@ -22,6 +24,19 @@ func (a *App) initLogger() {
 	if a.Logger == nil {
 		a.Logger = log.New(os.Stdout, fmt.Sprintf("[%s] ", a.Name), log.LstdFlags)
 	}
+}
+
+// reads the module version
+func readBuildInfo() string {
+	version := "dev"
+	info, ok := debug.ReadBuildInfo()
+	if !ok {
+		return version
+	}
+	if info.Main.Version != "" && info.Main.Version != "(devel)" {
+		version = info.Main.Version
+	}
+	return version
 }
 
 // validates the following app fields: name, version
@@ -50,14 +65,15 @@ func (a *App) Start(handler http.Handler) error {
 		a.Addr = ":" + defaultPort
 	}
 	a.initLogger()
-	a.Logger.Printf("Starting %s version %s on %s\n", a.Name, a.Version, a.Addr)
+	a.Logger.Printf("Starting %s version %s on port %s\n", a.Name, a.Version, a.Addr)
 	return http.ListenAndServe(a.Addr, handler)
 }
 
 // Creates a new App instance with name, version and listen address.
-func NewApp(name, version, addr string) *App {
+func NewApp(addr string) *App {
+	version := readBuildInfo()
 	return &App{
-		Name:    name,
+		Name:    defaultName,
 		Version: version,
 		Addr:    addr,
 	}
