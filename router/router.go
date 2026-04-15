@@ -1,8 +1,12 @@
 package router
 
 import (
+	"log"
+	"net/http"
+
 	"github.com/alx5409/frameGOrk/middleware"
 	"github.com/alx5409/frameGOrk/route"
+	"github.com/alx5409/frameGOrk/utils"
 )
 
 type Router struct {
@@ -31,4 +35,22 @@ func HTTPDispatch(method route.Method, path route.Path, routes []*route.Route) (
 		}
 	}
 	return nil, false
+}
+
+func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	method := route.Method(utils.NormalizeMethod(req.Method))
+	path := route.Path(req.URL.Path)
+
+	// Checks if the method is correct
+	handler, found := HTTPDispatch(method, path, r.routes)
+	if !found {
+		log.Println("Error: method ", method, " was not found.")
+		http.NotFound(w, req)
+		return
+	}
+
+	if err := handler(w, req); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
